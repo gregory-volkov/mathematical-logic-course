@@ -1,9 +1,11 @@
-from boolean import Symbol, NOT
+from boolean import Symbol, NOT, BooleanAlgebra
+from itertools import combinations
 
 
-#
-# Tseytin utils
-#
+algebra = BooleanAlgebra()
+TRUE, FALSE = algebra.TRUE, algebra.FALSE
+
+
 def smart_not(expr):
 
     def eliminate_not(expr):
@@ -18,12 +20,13 @@ def smart_not(expr):
 
 
 def new_variable_generator():
-    var_prefix = "__fake_var__"
+    var_prefix = "__AUXILIARY_VAR__"
     cur_i = 0
 
     while True:
         yield Symbol(f"{var_prefix}{cur_i}")
         cur_i += 1
+
 
 #
 # Other utils
@@ -34,3 +37,29 @@ def underscore_text(s):
 
 def upperscore_text(s):
     return '=' * len(s) + '\n' + s
+
+
+def binarize_expression(expr):
+    expr_type = type(expr)
+    if isinstance(expr, Symbol):
+        return expr
+    if isinstance(expr, NOT):
+        return NOT(binarize_expression(expr.args[0]))
+    if len(expr.args) == 2:
+        return expr_type(
+            binarize_expression(expr.args[0]),
+            binarize_expression(expr.args[1])
+        )
+    else:
+        return expr_type(
+            binarize_expression(expr.args[0]),
+            binarize_expression(expr_type(*expr.args[1:]))
+        )
+
+
+def is_pos(x):
+    return True if x > 0 else False
+
+
+def str2expr(x):
+    return binarize_expression(BooleanAlgebra().parse(x))

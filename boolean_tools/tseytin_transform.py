@@ -8,10 +8,13 @@ import logging
 def expr2cnf(expr: Expression):
     logging.info(upperscore_text("STARTING TSEYTIN PROCEDURE"))
     var_generator = new_variable_generator()
-    result = __tseytin_procedure__(expr, set(), var_generator)
-    return result
+    l, delta = __tseytin_procedure__(expr, set(), var_generator)
+    delta.add(l)
+    return delta
+
 
 def __tseytin_procedure__(expr: Expression, delta: Set[Expression], var_generator: Generator):
+    return_value, _delta = None, None
 
     if expr.isliteral:
         return expr, delta
